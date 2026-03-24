@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'https://reproduced-dna-provided-upload.trycloudflare.com/api';
 
 let currentUsername = '';
 let currentEmail = '';

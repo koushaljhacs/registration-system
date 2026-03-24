@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'https://reproduced-dna-provided-upload.trycloudflare.com/api';
 
 // Handle login form
 document.getElementById('loginForm').addEventListener('submit', function(e) {

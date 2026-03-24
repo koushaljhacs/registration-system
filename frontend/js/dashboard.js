@@ -1,5 +1,4 @@
-const API_URL = '/api';
-
+const API_URL = 'https://reproduced-dna-provided-upload.trycloudflare.com/api';
 // Get token from localStorage
 const token = localStorage.getItem('token');
 
