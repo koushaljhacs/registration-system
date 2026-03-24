@@ -4,83 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <script>
+        // Get page parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page');
+        
+        // Map pages to actual files
+        const pages = {
+            'register': 'frontend/register.html',
+            'login': 'frontend/login.html',
+            'dashboard': 'frontend/dashboard.html',
+            'forgot-password': 'frontend/forgot-password.html'
+        };
+        
+        // Redirect to specific page or default to frontend/index.html
+        if (pages[page]) {
+            window.location.href = pages[page];
+        } else {
+            window.location.href = 'frontend/index.html';
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-        }
-        .container {
-            max-width: 600px;
-            padding: 40px;
-        }
-        h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 18px;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .redirect-text {
-            margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.7;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 Registration System</h1>
-        <p>Welcome to the Registration System. Redirecting you to the application...</p>
-        <div class="spinner"></div>
-        <div class="redirect-text">
-            If not redirected automatically, <a href="frontend/index.html" style="color: white;">click here</a>
-        </div>
-    </div>
-    
-    <script>
-        // Auto redirect to frontend
-        setTimeout(function() {
-            window.location.href = 'frontend/index.html';
-        }, 2000);
-    </script>
+    <p>Redirecting to Registration System...</p>
 </body>
 </html>

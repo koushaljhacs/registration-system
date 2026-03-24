@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Server Container
+  postgres-server:
+    # Using official PostgreSQL 15 image from Docker Hub
+    image: postgres:15
+    
+    # Container name for easy reference
+    container_name: registration-postgres-server
+    
+    # Restart policy - automatically restart container unless manually stopped
+    # This ensures database server stays running after system reboots or crashes
+    restart: unless-stopped
+    
+    # Environment variables for PostgreSQL configuration
+    # These are required for initial database setup
+    environment:
+      # Superuser username for PostgreSQL (default is 'postgres' if not specified)
+      # Creating a custom superuser for better security
+      POSTGRES_USER: koushal
+      
+      # Superuser password - must be strong in production
+      POSTGRES_PASSWORD: koushal
+      
+      # Default database created on container startup
+      # This database will be owned by POSTGRES_USER
+      POSTGRES_DB: registration_db
+      
+      # Optional: Additional PostgreSQL configuration parameters
+      # These improve performance and security
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      
+      # Timezone setting for PostgreSQL server
+      TZ: Asia/Kolkata
+    
+    # Port mapping: HOST_PORT:CONTAINER_PORT
+    # Format: "host_ip:host_port:container_port" or just "host_port:container_port"
+    ports:
+      # Expose PostgreSQL on host IP 100.88.168.61 at port 4000
+      # Container internal PostgreSQL port is always 5432
+      - "100.88.168.61:4000:5432"
+      # Alternative if you want to bind to all interfaces (not recommended for production):
+      # - "4000:5432"
+    
+    # Volume mounts for persistent data storage
+    # Without volumes, all data would be lost when container is removed
+    volumes:
+      # Named volume for database data persistence
+      # This ensures data survives container restarts and updates
+      - postgres_data:/var/lib/postgresql/data
+      
+      # Optional: Mount custom initialization scripts
+      # Any .sql or .sh files in this directory will run on first container start
+      # This is useful for creating custom tables, users, or loading initial data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    
+    # Resource limits to prevent container from consuming all host resources
+    # Adjust based on your system's capacity
+    deploy:
+      resources:
+        limits:
+          # Maximum memory this container can use
+          memory: 1G
+          # CPU limit - 0.5 means half of one CPU core
+          cpus: '0.5'
+        reservations:
+          # Guaranteed minimum resources
+          memory: 256M
+          cpus: '0.25'
+    
+    # Health check to monitor database server status
+    # This helps orchestration tools know when the database is ready
+    healthcheck:
+      # Command to check if PostgreSQL is accepting connections
+      # pg_isready is a built-in PostgreSQL utility
+      test: ["CMD-SHELL", "pg_isready -U koushal -d registration_db"]
+      
+      # Check every 30 seconds
+      interval: 30s
+      
+      # Timeout for each health check
+      timeout: 10s
+      
+      # Number of retries before marking as unhealthy
+      retries: 5
+      
+      # Start period - give container time to initialize
+      start_period: 40s
+    
+    # Network configuration - using custom network for better isolation
+    networks:
+      - registration-network
+    
+    # Logging configuration to prevent log files from consuming too much disk space
+    logging:
+      driver: "json-file"
+      options:
+        # Maximum size of each log file
+        max-size: "10m"
+        # Maximum number of log files to keep
+        max-file: "3"
+    
+    # Labels for better container management (optional)
+    labels:
+      - "project=registration-system"
+      - "environment=development"
+      - "maintainer=koushal2023@gmail.com"
+
+# Named volumes declaration
+# Docker will manage these volumes automatically
+volumes:
+  postgres_data:
+    # Optional: Use local driver with custom options
+    driver: local
+    # You can specify where to store the volume on host
+    # driver_opts:
+    #   type: none
+    #   device: /opt/postgres-data
+    #   o: bind
+
+# Custom network for better isolation between containers
+# This creates a bridge network that only containers in this compose file can use
+networks:
+  registration-network:
+    # Use bridge driver (default)
+    driver: bridge
+    # Optional: Configure network settings
+    driver_opts:
+      # Enable communication between containers on this network
+      com.docker.network.bridge.enable_icc: "true"
+      # Set custom subnet to avoid IP conflicts
+      com.docker.network.bridge.subnet: "172.20.0.0/16"

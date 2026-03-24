@@ -1,12 +1,27 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Create transporter
+// Create transporter with better SSL handling
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000
+});
+
+// Test connection on startup
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log('❌ Email transporter error:', error.message);
+  } else {
+    console.log('✅ Email transporter ready to send emails');
   }
 });
 
@@ -32,17 +47,18 @@ function sendOTPEmail(email, otpCode, callback) {
   
   transporter.sendMail(mailOptions, function(err, info) {
     if (err) {
-      console.log('Email error:', err);
+      console.log('OTP Email error:', err.message);
       return callback(err, null);
     }
-    console.log('Email sent:', info.messageId);
+    console.log('OTP Email sent:', info.messageId);
     callback(null, info);
   });
 }
 
 // Send credentials email with username and password
 function sendCredentialsEmail(email, username, password, callback) {
-  const loginUrl = process.env.FRONTEND_URL || 'http://100.88.168.61:4001';
+  // GitHub Pages base URL - files frontend folder mein hain
+  const baseUrl = 'https://koushaljhacs.github.io/registration-system/frontend';
   
   const mailOptions = {
     from: `"Registration System" <${process.env.EMAIL_USER}>`,
@@ -65,7 +81,12 @@ function sendCredentialsEmail(email, username, password, callback) {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}/login" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Login to Your Account</a>
+            <a href="${baseUrl}/login.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">🔐 Login to Your Account</a>
+          </div>
+          
+          <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+            <p style="margin: 5px 0;"><strong>📝 New User?</strong> <a href="${baseUrl}/register.html" style="color: #667eea;">Register here</a></p>
+            <p style="margin: 5px 0;"><strong>🔑 Forgot Password?</strong> <a href="${baseUrl}/forgot-password.html" style="color: #667eea;">Reset here</a></p>
           </div>
           
           <p style="font-size: 14px; color: #666; margin-top: 20px;">For security reasons, please change your password after first login.</p>
@@ -73,7 +94,7 @@ function sendCredentialsEmail(email, username, password, callback) {
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
-          <p style="margin: 0; color: #666; font-size: 12px;">&copy; 2025 Registration System. All rights reserved.</p>
+          <p style="margin: 0; color: #666; font-size: 12px;">&copy; 2025 Registration System | <a href="${baseUrl}" style="color: #667eea;">Visit Website</a></p>
         </div>
       </div>
     `
@@ -81,7 +102,7 @@ function sendCredentialsEmail(email, username, password, callback) {
   
   transporter.sendMail(mailOptions, function(err, info) {
     if (err) {
-      console.log('Credentials email error:', err);
+      console.log('Credentials email error:', err.message);
       return callback(err, null);
     }
     console.log('Credentials email sent:', info.messageId);
