@@ -114,7 +114,7 @@ verifyOtpBtn.addEventListener('click', function() {
     verifyOtpBtn.textContent = 'Verifying...';
     verifyOtpBtn.disabled = true;
     
-    fetch(`${API_URL}/auth/forgot-password-verify-otp`, {
+    fetch(`${API_URL}/api/auth/forgot-password-verify-otp`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -175,7 +175,7 @@ document.getElementById('resetPasswordForm').addEventListener('submit', function
     submitBtn.textContent = 'Updating...';
     submitBtn.disabled = true;
     
-    fetch(`${API_URL}/auth/reset-password`, {
+    fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

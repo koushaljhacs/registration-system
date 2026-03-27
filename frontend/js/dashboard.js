@@ -8,84 +8,168 @@ if (!token) {
     window.location.href = 'login.html';
 }
 
-// Load dashboard data
-function loadDashboard() {
-    // Get user info from localStorage
+// DOM Elements - Cache for faster access
+const elements = {
+    welcomeText: document.getElementById('welcomeText'),
+    profileName: document.getElementById('profileName'),
+    profileEmail: document.getElementById('profileEmail'),
+    profileUsername: document.getElementById('profileUsername'),
+    profileAge: document.getElementById('profileAge'),
+    profileGender: document.getElementById('profileGender'),
+    profileMobile: document.getElementById('profileMobile'),
+    profileCreated: document.getElementById('profileCreated')
+};
+
+// ============ IMMEDIATE DATA DISPLAY (NO WAITING) ============
+// Show user data from localStorage instantly
+function showInstantData() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    // Update welcome message
-    document.getElementById('welcomeText').textContent = `Welcome back, ${user.name || 'User'}!`;
+    // Update welcome message instantly
+    if (elements.welcomeText) {
+        elements.welcomeText.textContent = `Welcome back, ${user.name || 'User'}!`;
+    }
     
-    // Load profile data from API
-    fetch(`${API_URL}/api/user/dashboard`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
+    // Show profile data from localStorage immediately
+    if (elements.profileName) elements.profileName.textContent = user.name || '-';
+    if (elements.profileEmail) elements.profileEmail.textContent = user.email || '-';
+    if (elements.profileUsername) elements.profileUsername.textContent = user.username || '-';
+    if (elements.profileAge) elements.profileAge.textContent = user.age || '-';
+    if (elements.profileGender) elements.profileGender.textContent = user.gender || '-';
+    if (elements.profileMobile) elements.profileMobile.textContent = user.mobile_number || '-';
+    
+    // Show loading indicator for fields that might update
+    showLoadingIndicator();
+}
+
+// Show subtle loading indicator
+function showLoadingIndicator() {
+    const loadingFields = ['profileAge', 'profileGender', 'profileMobile', 'profileCreated'];
+    loadingFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element && element.textContent === '-') {
+            element.innerHTML = '<span class="loading-dots">...</span>';
         }
-    })
-    .then(function(response) {
+    });
+}
+
+// ============ FETCH FRESH DATA IN BACKGROUND ============
+async function fetchFreshData() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await fetch(`${API_URL}/api/user/dashboard`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.status === 401) {
             logout();
             return;
         }
-        return response.json();
-    })
-    .then(function(data) {
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
         if (data && data.success) {
             const userData = data.data.user;
             
-            // Update profile details
-            document.getElementById('profileName').textContent = userData.name || '-';
-            document.getElementById('profileEmail').textContent = userData.email || '-';
-            document.getElementById('profileUsername').textContent = userData.username || '-';
-            document.getElementById('profileAge').textContent = userData.age || '-';
-            document.getElementById('profileGender').textContent = userData.gender || '-';
-            document.getElementById('profileMobile').textContent = userData.mobile_number || '-';
+            // Update UI with fresh data
+            updateUIWithFreshData(userData);
             
-            // Format date
-            if (userData.created_at) {
-                const date = new Date(userData.created_at);
-                document.getElementById('profileCreated').textContent = date.toLocaleDateString('en-IN');
-            }
-        } else if (data && !data.success) {
-            if (data.message === 'Invalid or expired token') {
-                logout();
-            }
-            showMessage('Error loading profile: ' + data.message, 'error');
+            // Update localStorage for next time
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const updatedUser = { ...currentUser, ...userData };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        } else if (data && !data.success && data.message === 'Invalid or expired token') {
+            logout();
         }
-    })
-    .catch(function(error) {
-        showMessage('Error: ' + error.message, 'error');
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('Request timeout, showing cached data');
+        } else {
+            console.log('Background fetch error:', error.message);
+        }
+        // Don't show error to user - we already have localStorage data
+    }
+}
+
+// Update UI with fresh data (smooth transition)
+function updateUIWithFreshData(userData) {
+    if (!userData) return;
+    
+    // Smooth update without flicker
+    requestAnimationFrame(() => {
+        if (elements.profileName && elements.profileName.textContent !== userData.name) {
+            elements.profileName.textContent = userData.name || '-';
+        }
+        if (elements.profileEmail && elements.profileEmail.textContent !== userData.email) {
+            elements.profileEmail.textContent = userData.email || '-';
+        }
+        if (elements.profileUsername && elements.profileUsername.textContent !== userData.username) {
+            elements.profileUsername.textContent = userData.username || '-';
+        }
+        if (elements.profileAge && elements.profileAge.textContent !== String(userData.age || '-')) {
+            elements.profileAge.textContent = userData.age || '-';
+        }
+        if (elements.profileGender && elements.profileGender.textContent !== (userData.gender || '-')) {
+            elements.profileGender.textContent = userData.gender || '-';
+        }
+        if (elements.profileMobile && elements.profileMobile.textContent !== (userData.mobile_number || '-')) {
+            elements.profileMobile.textContent = userData.mobile_number || '-';
+        }
+        
+        if (userData.created_at && elements.profileCreated) {
+            const formattedDate = new Date(userData.created_at).toLocaleDateString('en-IN');
+            if (elements.profileCreated.textContent !== formattedDate) {
+                elements.profileCreated.textContent = formattedDate;
+            }
+        }
     });
 }
 
-// Handle logout
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    logout();
-});
-
+// ============ LOGOUT FUNCTION ============
 function logout() {
-    // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
-    // Redirect to login
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
 }
 
-// Show message
+// ============ SHOW MESSAGE ============
+let messageTimeout;
 function showMessage(message, type) {
+    if (messageTimeout) clearTimeout(messageTimeout);
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = `alert alert-${type}`;
     messageDiv.textContent = message;
     
     const container = document.querySelector('.user-info');
-    container.insertBefore(messageDiv, container.firstChild);
-    
-    setTimeout(function() {
-        messageDiv.remove();
-    }, 3000);
+    if (container) {
+        container.insertBefore(messageDiv, container.firstChild);
+        messageTimeout = setTimeout(() => messageDiv.remove(), 3000);
+    }
 }
 
-// Load dashboard on page load
-loadDashboard();
+// ============ EVENT LISTENERS ============
+document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    logout();
+});
+
+// ============ INITIALIZE DASHBOARD ============
+// Step 1: Show data from localStorage IMMEDIATELY
+showInstantData();
+
+// Step 2: Fetch fresh data in background (doesn't block UI)
+fetchFreshData();

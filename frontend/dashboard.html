@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
         .dashboard-box {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             padding: 40px;
         }
 
@@ -113,6 +114,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -131,21 +133,40 @@
             border: 1px solid #f5c6cb;
         }
 
+        .loading-dots {
+            display: inline-block;
+            animation: pulse 1s ease-in-out infinite;
+            color: #999;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
             .dashboard-box {
                 padding: 25px;
             }
-            
+
             .header h2 {
                 font-size: 24px;
             }
-            
+
             .profile-details strong {
                 width: 80px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="dashboard-box">
@@ -153,12 +174,12 @@
                 <h2>Dashboard</h2>
                 <button id="logoutBtn" class="btn-logout">Logout</button>
             </div>
-            
+
             <div id="userInfo" class="user-info">
                 <div class="welcome-message">
                     <h3 id="welcomeText">Loading...</h3>
                 </div>
-                
+
                 <div class="profile-card">
                     <h4>Your Profile</h4>
                     <div class="profile-details">
@@ -174,7 +195,8 @@
             </div>
         </div>
     </div>
-    
+
     <script src="js/dashboard.js"></script>
 </body>
+
 </html>
