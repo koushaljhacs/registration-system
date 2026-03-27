@@ -1,4 +1,4 @@
-const API_URL = 'https://reproduced-dna-provided-upload.trycloudflare.com/api';
+const API_URL = 'https://rarely-optics-nova-continue.trycloudflare.com';
 
 let currentEmail = '';
 let otpVerified = false;

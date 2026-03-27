@@ -1,4 +1,5 @@
-const API_URL = 'https://reproduced-dna-provided-upload.trycloudflare.com/api';
+const API_URL = 'https://rarely-optics-nova-continue.trycloudflare.com';
+
 
 // Handle login form
 document.getElementById('loginForm').addEventListener('submit', function(e) {
