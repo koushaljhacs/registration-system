@@ -15,7 +15,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     submitBtn.disabled = true;
     
     // Send login request
-    fetch(`${API_URL}/auth/login-with-username`, {
+    fetch(`${API_URL}/api/auth/login-with-username`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

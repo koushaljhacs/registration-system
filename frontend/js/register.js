@@ -47,7 +47,7 @@ sendOtpBtn.addEventListener('click', function() {
     sendOtpBtn.disabled = true;
     
     // Send OTP request
-    fetch(`${API_URL}/auth/send-otp`, {
+    fetch(`${API_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -103,7 +103,7 @@ verifyOtpBtn.addEventListener('click', function() {
     verifyOtpBtn.textContent = 'Verifying...';
     verifyOtpBtn.disabled = true;
     
-    fetch(`${API_URL}/auth/verify-otp-only`, {
+    fetch(`${API_URL}/api/auth/verify-otp-only`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -185,7 +185,7 @@ registerForm.addEventListener('submit', function(e) {
     submitBtn.disabled = true;
     
     // Send registration request
-    fetch(`${API_URL}/auth/register-with-verified-otp`, {
+    fetch(`${API_URL}/api/auth/register-with-verified-otp`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

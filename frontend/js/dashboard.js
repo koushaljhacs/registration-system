@@ -17,7 +17,7 @@ function loadDashboard() {
     document.getElementById('welcomeText').textContent = `Welcome back, ${user.name || 'User'}!`;
     
     // Load profile data from API
-    fetch(`${API_URL}/user/dashboard`, {
+    fetch(`${API_URL}/api/user/dashboard`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`

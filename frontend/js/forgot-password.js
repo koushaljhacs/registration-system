@@ -53,7 +53,7 @@ sendOtpBtn.addEventListener('click', function() {
     sendOtpBtn.disabled = true;
     
     // Send OTP request
-    fetch(`${API_URL}/auth/forgot-password-send-otp`, {
+    fetch(`${API_URL}/api/auth/forgot-password-send-otp`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
